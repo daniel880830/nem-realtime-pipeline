@@ -120,3 +120,37 @@ class LiveState:
 def filter_facilities(df: pd.DataFrame, states: list[str], fuel_groups: list[str]) -> pd.DataFrame:
     """Keep facilities in the selected states and fuel groups (empty selection → empty frame)."""
     return df[df["state"].isin(states) & df["fuel_group"].isin(fuel_groups)]
+
+
+def emission_radius(
+    emissions: pd.Series, *, min_radius_m: float = 2500, max_radius_m: float = 60000
+) -> pd.Series:
+    """Map emissions to a circle radius in metres, so circle *area* is proportional to emissions.
+
+    The largest emitter gets ``max_radius_m``; zero, negative or missing emissions get
+    ``min_radius_m``.
+    """
+    values = emissions.astype("float64").fillna(0).clip(lower=0)
+    peak = values.max()
+    if not peak or peak <= 0:
+        return pd.Series(min_radius_m, index=emissions.index, dtype="float64")
+    return min_radius_m + (max_radius_m - min_radius_m) * (values / peak) ** 0.5
+
+
+def prepare_emission_snapshot(snapshot: pd.DataFrame) -> pd.DataFrame:
+    """Add colour, radius and display labels to a :func:`warehouse.facility_snapshot` frame.
+
+    Emitting facilities are drawn opaque in their fuel colour; zero-emission facilities are
+    drawn faint so the emitters stand out.
+    """
+    out = snapshot.copy()
+    out["fuel_group"] = out["fuel_type"].map(fuel_group)
+    emitting = out["emissions_t"].fillna(0) > 0
+    out["color"] = [
+        [*hex_to_rgb(FUEL_COLORS[g]), 220 if e else 60]
+        for g, e in zip(out["fuel_group"], emitting, strict=True)
+    ]
+    out["radius_m"] = emission_radius(out["emissions_t"])
+    out["emissions_label"] = out["emissions_t"].map(lambda v: "n/a" if pd.isna(v) else f"{v:,.2f}")
+    out["power_label"] = out["power_mw"].map(lambda v: "n/a" if pd.isna(v) else f"{v:,.1f}")
+    return out

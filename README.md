@@ -5,7 +5,7 @@
 [![MQTT](https://img.shields.io/badge/MQTT-Mosquitto%202.0-660066?logo=eclipsemosquitto&logoColor=white)](https://mosquitto.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.66-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![Docker](https://img.shields.io/badge/Docker-compose-2496ED?logo=docker&logoColor=white)](docker-compose.yml)
-[![Tests](https://img.shields.io/badge/tests-124%20passed-brightgreen)](tests)
+[![Tests](https://img.shields.io/badge/tests-128%20passed-brightgreen)](tests)
 [![Coverage](https://img.shields.io/badge/coverage-97%25-brightgreen)](tests)
 [![Ruff](https://img.shields.io/badge/lint-ruff-D7FF64?logo=ruff&logoColor=black)](pyproject.toml)
 
@@ -26,6 +26,13 @@ for CER enrichment, where its precision rises from **17.3% to 75.4%**.
 
 ![Live dashboard](docs/dashboard.jpg)
 
+**CO₂ history view** — drag the time slider (5-minute steps), step ±5 min / ±1 h, or press Play to
+watch emissions change across the week. Circle area is proportional to each facility's CO₂-e in
+the selected interval; the chart below shows the weekly profile by state with the selected time
+marked.
+
+![CO2 history view](docs/co2_history.jpg)
+
 ## Key Features
 
 - **Measured, not assumed, data quality.** Name matching is scored against OpenElectricity's own
@@ -40,7 +47,10 @@ for CER enrichment, where its precision rises from **17.3% to 75.4%**.
 - **Streaming with validated contracts.** Pydantic models validate every MQTT message on the
   consumer side; malformed messages are counted and dropped. End-to-end latency through a local
   broker is **p50 6.96 ms / p95 9.55 ms at QoS 1** with 0 of 4,032 messages lost.
-- **Production packaging.** Typed `src/` package with a Typer CLI, 124 tests (97% coverage), Ruff,
+- **Time-travel view of emissions.** A second dashboard mode queries DuckDB for any of the 2,016
+  intervals: a draggable time slider with playback, an emissions-scaled map, the change against one
+  hour earlier, the top emitters and a stacked weekly chart by state.
+- **Production packaging.** Typed `src/` package with a Typer CLI, 128 tests (97% coverage), Ruff,
   a two-stage non-root Docker image slimmed from 965 MB to 709 MB, and a one-command compose stack.
 
 ## System Architecture
@@ -61,8 +71,8 @@ flowchart LR
     subgraph Online["Online serving — docker compose"]
         WH --> PUB["publisher<br/>facility totals per interval"]
         PUB -->|"nem/facilities/metrics<br/>nem/market/metrics"| BROKER(["Mosquitto broker"])
-        BROKER --> DASH["Streamlit dashboard<br/>Pydantic-validated ingest"]
-        WH --> DASH
+        BROKER --> DASH["Streamlit dashboard<br/>Live: Pydantic-validated ingest<br/>History: time slider"]
+        WH -->|"emission timeline<br/>facility snapshot"| DASH
     end
     MATCH --> REP["reports/*.json"]
 ```
@@ -75,6 +85,7 @@ flowchart LR
 | Transform | 2,112,432 long rows | Pivot power/emissions on `(facility, unit, timestamp)`; timestamps converted to NEM time (UTC+10); idle 0/0 rows dropped | `facility_metrics` 568,237 rows, `market_metrics` 10,080 rows |
 | Match | facilities × stations | Word-boundary normalisation, same-state candidates, `token_set_ratio ≥ 85` | `cer_facility_match`, evaluation report |
 | Serve | warehouse | Sum units per facility per interval, one message per topic and interval | MQTT → dashboard |
+| History | warehouse | Per-state totals for every interval; per-facility snapshot for the selected interval (parameterised DuckDB query) | CO₂ history view |
 
 ## Tech Stack
 
@@ -235,7 +246,7 @@ nem-realtime-pipeline/
 │   ├── publish.py         # MQTT replay
 │   ├── benchmark.py       # end-to-end latency/throughput measurement
 │   ├── cli.py             # nem-pipeline run | extract | publish | dashboard | benchmark
-│   └── dashboard/         # logic.py (testable state) + app.py (Streamlit)
+│   └── dashboard/         # logic.py (testable state, emission scaling) + app.py (live + CO₂ history views)
 ├── tests/unit/            # per-module tests with synthetic fixtures and fakes
 ├── tests/integration/     # offline end-to-end runs, CLI included
 ├── config/pipeline.toml   # extraction window, thresholds, topics

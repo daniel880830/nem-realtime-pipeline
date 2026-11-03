@@ -39,3 +39,4 @@ __MACOSX/
 
 # Scratch logs
 reports/_*
+.playwright-mcp/

@@ -83,3 +83,33 @@ def test_filter_facilities():
     df = logic.LiveState().facility_frame(base_frame())
     assert len(logic.filter_facilities(df, ["NSW"], ["Coal", "Wind"])) == 1
     assert logic.filter_facilities(df, [], ["Coal"]).empty
+
+
+def test_emission_radius_area_proportional():
+    r = logic.emission_radius(
+        pd.Series([0.0, 25.0, 100.0, None, -5.0]), min_radius_m=0, max_radius_m=100
+    )
+    assert r.tolist() == [
+        0.0,
+        50.0,
+        100.0,
+        0.0,
+        0.0,
+    ]  # sqrt scaling: a quarter of the max -> half the radius
+    flat = logic.emission_radius(pd.Series([0.0, None]), min_radius_m=7)
+    assert flat.tolist() == [7.0, 7.0]
+    assert logic.emission_radius(pd.Series([], dtype="float64")).empty
+
+
+def test_prepare_emission_snapshot():
+    snap = pd.DataFrame(
+        {"facility_code": ["C", "W"], "facility_name": ["Coal", "Wind"], "state": ["NSW", "SA"],
+         "fuel_type": ["Coal Black", "Wind"], "latitude": [1.0, 2.0], "longitude": [3.0, 4.0],
+         "power_mw": [900.0, None], "emissions_t": [72.0, None]}
+    )  # fmt: skip
+    out = logic.prepare_emission_snapshot(snap).set_index("facility_code")
+    assert out.loc["C", "color"] == [0, 0, 0, 220]
+    assert out.loc["W", "color"][3] == 60  # zero-emission facilities are faint
+    assert out.loc["C", "radius_m"] > out.loc["W", "radius_m"]
+    assert out.loc["C", "emissions_label"] == "72.00" and out.loc["W", "power_label"] == "n/a"
+    assert set(out["fuel_group"]) == {"Coal", "Wind"}

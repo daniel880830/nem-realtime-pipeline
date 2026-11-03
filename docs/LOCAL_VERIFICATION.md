@@ -11,7 +11,7 @@ Numbers are from the reference run in `reports/`; timings vary by machine.
 | # | Command / run configuration | Expected |
 |---|---|---|
 | 1 | `pip install -r requirements-dev.txt && pip install -e . --no-deps` | `nem-pipeline --help` lists `run, extract, publish, benchmark, dashboard` |
-| 2 | **0 All tests** — `pytest --cov` | `124 passed`, `TOTAL … 97%` |
+| 2 | **0 All tests** — `pytest --cov` | `128 passed`, `TOTAL … 97%` |
 | 3 | `ruff check src tests && ruff format --check src tests` | `All checks passed!` and `… files already formatted` |
 | 4 | Copy `.env.example` to `.env`, set `APP_OPENELECTRICITY_API_KEY` | — |
 | 5 | **1 Run pipeline (legacy method)** — `nem-pipeline run --method legacy` | First run: ~22 API requests and geocoding at 1 req/s (several minutes). Summary JSON with `"facilities": 486`, `"facility_metric_rows": 568237`, `"map_coverage": 0.3168…` |
@@ -20,6 +20,7 @@ Numbers are from the reference run in `reports/`; timings vary by machine.
 | 8 | `docker compose up -d broker` | `docker compose ps` shows the broker `(healthy)` |
 | 9 | **3 Publish to MQTT** — `nem-pipeline publish --cycles 0` | `Publishing to localhost:1883 (nem/facilities/metrics, nem/market/metrics)`; stop with Ctrl+C → `Published N messages …` |
 | 10 | **4 Dashboard** (while 9 is running) — open http://localhost:8501 | Headers change from "waiting for data" to a 2025-10-0x timestamp within a few seconds; about 480 coloured points on the map; market table with 5 regions |
+| 10b | In the sidebar choose **View → CO₂ history**; drag the slider or click **+1 h** | Header shows the selected time; at `2025-10-01 18:00` the total is **1,103 t** (`+135 t vs 1 h earlier`) and Bayswater tops the table; **Play** advances the slider automatically |
 | 11 | `docker compose exec broker mosquitto_pub -t nem/facilities/metrics -m 'not json'` | Sidebar "Rejected messages" goes up by 1; the dashboard keeps updating |
 | 12 | **5 Benchmark publish** — `nem-pipeline benchmark --intervals 2016 --qos 1` | `"lost": 0`, p50/p95 latency in single-digit milliseconds |
 | 13 | `docker compose down && docker compose up --build` | `pipeline` exits 0, then `publisher` and `dashboard` start; `docker compose exec dashboard whoami` → `app` |

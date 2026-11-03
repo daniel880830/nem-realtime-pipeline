@@ -136,6 +136,46 @@ def read_table(conn: duckdb.DuckDBPyConnection, name: str) -> pd.DataFrame:
     return conn.execute(f"SELECT * FROM {name}").fetchdf()
 
 
+def emission_timeline(conn: duckdb.DuckDBPyConnection) -> pd.DataFrame:
+    """Total emissions and power per state for every 5-minute interval.
+
+    Returns:
+        Columns ``timestamp, state, emissions_t, power_mw``, sorted by time and state.
+    """
+    return conn.execute(
+        """
+        SELECT m.timestamp, d.state,
+               coalesce(sum(m.emissions_t), 0) AS emissions_t,
+               sum(m.power_mw) AS power_mw
+        FROM facility_metrics m JOIN facility_dim d USING (facility_code)
+        GROUP BY m.timestamp, d.state
+        ORDER BY m.timestamp, d.state
+        """
+    ).fetchdf()
+
+
+def facility_snapshot(conn: duckdb.DuckDBPyConnection, timestamp: pd.Timestamp) -> pd.DataFrame:
+    """Facility totals (units summed) at one interval, for facilities shown on the map.
+
+    Returns:
+        ``facility_code, facility_name, state, fuel_type, latitude, longitude, power_mw,
+        emissions_t``; facilities without a reading at ``timestamp`` are omitted.
+    """
+    return conn.execute(
+        """
+        SELECT d.facility_code, d.facility_name, d.state, d.fuel_type, l.latitude, l.longitude,
+               sum(m.power_mw) AS power_mw, sum(m.emissions_t) AS emissions_t
+        FROM facility_metrics m
+        JOIN facility_dim d USING (facility_code)
+        JOIN facility_location l USING (facility_code)
+        WHERE m.timestamp = ? AND l.latitude IS NOT NULL AND l.longitude IS NOT NULL
+        GROUP BY ALL
+        ORDER BY emissions_t DESC NULLS LAST, d.facility_code
+        """,
+        [pd.Timestamp(timestamp).to_pydatetime()],
+    ).fetchdf()
+
+
 def facilities_for_display(conn: duckdb.DuckDBPyConnection) -> pd.DataFrame:
     """Facilities joined to the coordinates chosen by the last run."""
     return conn.execute(
