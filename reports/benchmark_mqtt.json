@@ -1,0 +1,43 @@
+{
+  "qos0": {
+    "sent": 4032,
+    "received": 4032,
+    "lost": 0,
+    "latency_ms_p50": 5.14,
+    "latency_ms_p95": 8.56,
+    "latency_ms_max": 59.23,
+    "delivered_msgs_per_s": 594.4,
+    "intervals": 2016,
+    "qos": 0,
+    "payload_mb": 73.18,
+    "avg_payload_kb": 18.1,
+    "publish_loop_s": 6.765,
+    "publish_errors": 0,
+    "broker": "localhost:1883"
+  },
+  "qos1": {
+    "sent": 4032,
+    "received": 4032,
+    "lost": 0,
+    "latency_ms_p50": 6.96,
+    "latency_ms_p95": 9.55,
+    "latency_ms_max": 58.11,
+    "delivered_msgs_per_s": 545.1,
+    "intervals": 2016,
+    "qos": 1,
+    "payload_mb": 73.18,
+    "avg_payload_kb": 18.1,
+    "publish_loop_s": 7.359,
+    "publish_errors": 0,
+    "broker": "localhost:1883"
+  },
+  "environment": {
+    "generated_at": "2026-11-03T05:03:52Z",
+    "python": "3.13.5",
+    "platform": "Windows-11",
+    "processor": "AMD64 Family 25 Model 97 Stepping 2, AuthenticAMD",
+    "pandas": "3.1.0",
+    "duckdb": "2.0.0",
+    "rapidfuzz": "3.14.6"
+  }
+}

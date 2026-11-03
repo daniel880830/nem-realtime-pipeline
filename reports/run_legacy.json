@@ -1,0 +1,84 @@
+{
+  "method": "legacy",
+  "cer_source": "snapshot",
+  "cer_rows_integrated": 360,
+  "cer_stations_clean": 353,
+  "geocoded": 97,
+  "geocode_rate": 0.2747875354107649,
+  "geocode_methods": {
+    "name": 97
+  },
+  "nominatim_requests": 0,
+  "facilities": 486,
+  "facilities_with_official_location": 484,
+  "raw_facility_rows": 2112432,
+  "raw_market_rows": 20160,
+  "facility_metric_rows": 568237,
+  "market_rows": 10080,
+  "diagnostics": {
+    "unit_overwrite": {
+      "facility_intervals": 415331,
+      "wrong_intervals": 82010,
+      "wrong_rate": 0.19745696805680288,
+      "abs_error_mw_mean_when_wrong": 167.42094652603342
+    },
+    "positional_pairing": {
+      "legacy_rows": 568237,
+      "correct_rows": 568237,
+      "misaligned_rows": 0,
+      "misaligned_rate": 0.0,
+      "rows_lost_vs_correct": 0
+    }
+  },
+  "matching": {
+    "legacy_fuzzy": {
+      "facilities": 486,
+      "facilities_with_truth": 484,
+      "matched": 154,
+      "match_rate": 0.3168724279835391,
+      "evaluated": 154,
+      "correct": 10,
+      "precision": 0.06493506493506493,
+      "recall": 0.02066115702479339,
+      "cross_state_matches": 111,
+      "median_error_km": 728.6505059726991,
+      "p90_error_km": 1447.5485900427834,
+      "correct_within_km": 25.0
+    },
+    "improved_fuzzy": {
+      "facilities": 486,
+      "facilities_with_truth": 484,
+      "matched": 10,
+      "match_rate": 0.0205761316872428,
+      "evaluated": 10,
+      "correct": 9,
+      "precision": 0.9,
+      "recall": 0.01859504132231405,
+      "cross_state_matches": 0,
+      "median_error_km": 4.457790617212265,
+      "p90_error_km": 13.863360063616106,
+      "correct_within_km": 25.0
+    }
+  },
+  "facilities_on_map": 154,
+  "map_coverage": 0.3168724279835391,
+  "warehouse_mb": 17.05,
+  "stage_seconds": {
+    "cer_scrape_clean": 0.023,
+    "geocode": 0.009,
+    "extract": 2.441,
+    "transform": 1.129,
+    "match": 0.04,
+    "load": 0.211
+  },
+  "total_seconds": 3.853,
+  "environment": {
+    "generated_at": "2026-11-03T05:01:16Z",
+    "python": "3.13.5",
+    "platform": "Windows-11",
+    "processor": "AMD64 Family 25 Model 97 Stepping 2, AuthenticAMD",
+    "pandas": "3.1.0",
+    "duckdb": "2.0.0",
+    "rapidfuzz": "3.14.6"
+  }
+}

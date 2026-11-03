@@ -1,0 +1,86 @@
+{
+  "method": "improved",
+  "cer_source": "snapshot",
+  "cer_rows_integrated": 360,
+  "cer_stations_clean": 360,
+  "geocoded": 341,
+  "geocode_rate": 0.9472222222222222,
+  "geocode_methods": {
+    "postcode": 190,
+    "name": 81,
+    "short_name": 70
+  },
+  "nominatim_requests": 0,
+  "facilities": 486,
+  "facilities_with_official_location": 484,
+  "raw_facility_rows": 2112432,
+  "raw_market_rows": 20160,
+  "facility_metric_rows": 568237,
+  "market_rows": 10080,
+  "diagnostics": {
+    "unit_overwrite": {
+      "facility_intervals": 415331,
+      "wrong_intervals": 82010,
+      "wrong_rate": 0.19745696805680288,
+      "abs_error_mw_mean_when_wrong": 167.42094652603342
+    },
+    "positional_pairing": {
+      "legacy_rows": 568237,
+      "correct_rows": 568237,
+      "misaligned_rows": 0,
+      "misaligned_rate": 0.0,
+      "rows_lost_vs_correct": 0
+    }
+  },
+  "matching": {
+    "legacy_fuzzy": {
+      "facilities": 486,
+      "facilities_with_truth": 484,
+      "matched": 314,
+      "match_rate": 0.6460905349794238,
+      "evaluated": 313,
+      "correct": 54,
+      "precision": 0.17252396166134185,
+      "recall": 0.1115702479338843,
+      "cross_state_matches": 196,
+      "median_error_km": 576.6291207813621,
+      "p90_error_km": 1656.892661480032,
+      "correct_within_km": 25.0
+    },
+    "improved_fuzzy": {
+      "facilities": 486,
+      "facilities_with_truth": 484,
+      "matched": 66,
+      "match_rate": 0.13580246913580246,
+      "evaluated": 65,
+      "correct": 49,
+      "precision": 0.7538461538461538,
+      "recall": 0.1012396694214876,
+      "cross_state_matches": 0,
+      "median_error_km": 7.192542364482814,
+      "p90_error_km": 115.12518352792512,
+      "correct_within_km": 25.0
+    }
+  },
+  "facilities_on_map": 484,
+  "map_coverage": 0.9958847736625515,
+  "warehouse_mb": 17.05,
+  "stage_seconds": {
+    "cer_scrape_clean": 0.027,
+    "geocode": 0.06,
+    "extract": 2.632,
+    "transform": 1.206,
+    "match": 0.059,
+    "load": 0.23
+  },
+  "total_seconds": 4.214,
+  "environment": {
+    "generated_at": "2026-11-03T05:06:40Z",
+    "python": "3.13.18",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.41",
+    "processor": "x86_64",
+    "pandas": "3.1.0",
+    "duckdb": "2.0.0",
+    "rapidfuzz": "3.14.6"
+  }
+}

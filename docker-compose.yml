@@ -1,0 +1,68 @@
+name: nem-realtime-pipeline
+
+# One command: broker -> pipeline (one-off ETL) -> publisher + dashboard.
+#   docker compose up --build
+# Host ports come from .env (APP_HOST_MQTT_PORT, APP_HOST_DASHBOARD_PORT).
+
+x-app: &app
+  image: nem-realtime-pipeline:latest
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    APP_MQTT_HOST: broker
+    APP_MQTT_PORT: "1883"
+  volumes:
+    # Bind-mounted so cached API responses and geocodes are reused (API credits are limited).
+    - ./data/raw/oe:/app/data/raw/oe
+    - ./data/cache:/app/data/cache
+    - warehouse:/app/data/warehouse
+    - ./reports:/app/reports
+
+services:
+  broker:
+    image: eclipse-mosquitto:2.0.22
+    volumes:
+      - ./docker/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    ports:
+      - "${APP_HOST_MQTT_PORT:-1883}:1883"
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-t", "$$SYS/broker/uptime", "-C", "1", "-W", "3"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  pipeline:
+    <<: *app
+    build: .
+    command: ["run", "--method", "improved"]
+    healthcheck:
+      disable: true
+    restart: "no"
+
+  publisher:
+    <<: *app
+    command: ["publish", "--cycles", "0"]
+    healthcheck:
+      disable: true
+    restart: unless-stopped
+    depends_on:
+      pipeline:
+        condition: service_completed_successfully
+      broker:
+        condition: service_healthy
+
+  dashboard:
+    <<: *app
+    command: ["dashboard"]
+    ports:
+      - "${APP_HOST_DASHBOARD_PORT:-8501}:8501"
+    restart: unless-stopped
+    depends_on:
+      pipeline:
+        condition: service_completed_successfully
+      broker:
+        condition: service_healthy
+
+volumes:
+  warehouse:

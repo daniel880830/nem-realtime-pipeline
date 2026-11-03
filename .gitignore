@@ -1,0 +1,41 @@
+# Secrets
+.env
+
+# Environments and IDE
+.venv/
+venv/
+.idea/*
+!.idea/.gitignore
+.vscode/
+
+# Python caches and build output
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Generated data (re-created by the pipeline)
+data/*
+!data/raw/
+data/raw/*
+!data/raw/.gitkeep
+!data/raw/cer_snapshot_2025/
+!data/cache/
+data/cache/*
+!data/cache/.gitkeep
+*.duckdb
+*.duckdb.wal
+
+# OS noise
+.DS_Store
+Thumbs.db
+__MACOSX/
+
+# Scratch logs
+reports/_*

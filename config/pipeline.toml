@@ -1,0 +1,39 @@
+# Pipeline parameters (non-secret). Secrets and deployment-specific values live in .env.
+
+[extract]
+network = "NEM"
+interval = "5m"
+# Observation window in NEM market time (AEST, UTC+10). End is exclusive.
+start = "2025-10-01T00:00:00"
+end = "2025-10-08T00:00:00"
+# Facilities per OpenElectricity request and maximum days per request.
+facility_batch_size = 25
+max_days_per_request = 7
+
+[cer]
+page_url = "https://cer.gov.au/markets/reports-and-data/large-scale-renewable-energy-data"
+base_url = "https://cer.gov.au"
+datasets = ["accredited", "committed", "probable"]
+request_timeout_s = 30
+max_retries = 3
+
+[geocode]
+endpoint = "https://nominatim.openstreetmap.org/search"
+# Nominatim usage policy: at most 1 request per second.
+min_interval_s = 1.1
+timeout_s = 20
+
+[matching]
+# "legacy" reproduces the original fuzzy join; "improved" is the fixed version.
+legacy_partial_cutoff = 70
+legacy_token_sort_cutoff = 65
+improved_cutoff = 85
+# A match whose coordinates are within this distance of the OpenElectricity location counts as correct.
+correct_within_km = 25.0
+
+[publish]
+facility_topic = "nem/facilities/metrics"
+market_topic = "nem/market/metrics"
+# Delay between two consecutive 5-minute intervals during replay.
+interval_delay_s = 0.1
+qos = 0
